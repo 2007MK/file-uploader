@@ -30,6 +30,7 @@ module.exports.getLogin = (req, res) => {
 };
 
 module.exports.getSignup = (req, res) => {
+  if (req.isAuthenticated()) return res.redirect("/");
   res.render("signup");
 };
 
@@ -80,6 +81,7 @@ module.exports.postSignup = [
           folders: {
             create: {
               name: "root",
+              parentId: null,
             },
           },
         },

@@ -9,6 +9,8 @@
     <%if(locals.currentUser) { %>
         <h1>Welcome <%= currentUser.username %></h1>
         <a href="/logout">Logout</a>
+        <a href="/root">Go to Drive</a>
+        
     <% } else { %>
         <h1>Welcome Guest</h1>
         <a href="/login">Login | </a>
