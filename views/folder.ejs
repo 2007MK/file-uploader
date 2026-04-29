@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <a href="/folder/<%= folder.id %>/new"><button>New Folder</button></a>
+    <h1><%= folder.name %></h1>
+    <ul>
+        <% folder.children.forEach(item => { %>
+            <li>
+                <a href="/folder/<%= item.id %>"><%= item.name %></a>
+            </li>
+        <% }) %>
+        <% if(folder.files.length > 0) { %>
+            <% folder.files.forEach(file => { %>
+                <li><%= file.name %></li>
+            <%})%>
+        <%}%>
+
+    </ul>
+
+</body>
+</html>

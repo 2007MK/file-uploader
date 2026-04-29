@@ -13,7 +13,33 @@ const getRoot = async (req, res) => {
       children: true,
     },
   });
-  res.send(root);
+  res.render("folder", { folder: root });
 };
 
-module.exports = { getRoot };
+const getFolder = async (req, res) => {
+  if (!req.isAuthenticated) return res.redirect("/login");
+  const { id } = req.params;
+  const folder = await prisma.folder.findFirst({
+    where: {
+      id,
+    },
+    include: {
+      files: true,
+      children: true,
+    },
+  });
+  res.render("folder", { folder });
+};
+
+const createFolder = async (req, res) => {
+  const { parentId } = req.params;
+  const newFolder = await prisma.folder.create({
+    data: {
+      name: req.body.name,
+      parentId,
+      userId: req.user.id,
+    },
+  });
+  res.redirect(`/folder/${parentId}`);
+};
+module.exports = { getRoot, getFolder, createFolder };
