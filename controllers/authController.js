@@ -2,6 +2,7 @@ const passport = require("passport");
 const { prisma } = require("../lib/prisma");
 const bcrypt = require("bcryptjs");
 const { body, validationResult, matchedData } = require("express-validator");
+const { validateLogin } = require("../lib/validator");
 
 const validateSignup = [
   body("username")
@@ -15,7 +16,10 @@ const validateSignup = [
       });
       if (user) throw new Error("Username already exists");
     }),
-  body("password").trim(),
+  body("password")
+    .trim()
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long"),
   body("confirmPassword")
     .trim()
     .custom((value, { req }) => {
@@ -34,20 +38,28 @@ module.exports.getSignup = (req, res) => {
   res.render("signup");
 };
 
-module.exports.postLogin = (req, res, next) => {
-  // manual method to verify the user, and for easy error handling.
-  const verify = passport.authenticate("local", (err, user, info) => {
-    if (err) return next(err);
-    if (!user) return res.render("login", { error: info.message });
+module.exports.postLogin = [
+  validateLogin,
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render("login", { errors: errors.array() });
+    }
 
-    req.logIn(user, (err) => {
+    // manual method to verify the user, and for easy error handling.
+    const verify = passport.authenticate("local", (err, user, info) => {
       if (err) return next(err);
-      return res.redirect("/");
+      if (!user) return res.render("login", { error: info.message });
+
+      req.logIn(user, (err) => {
+        if (err) return next(err);
+        return res.redirect("/");
+      });
     });
-  });
-  // this line is added because, passport.authenticate(...) returns a function... and the below line calls that function.
-  verify(req, res, next);
-};
+    // this line is added because, passport.authenticate(...) returns a function... and the below line calls that function.
+    verify(req, res, next);
+  },
+];
 
 module.exports.logout = (req, res, next) => {
   req.logout((err) => {
@@ -60,21 +72,18 @@ module.exports.logout = (req, res, next) => {
 
 module.exports.postSignup = [
   validateSignup,
-  (req, res, next) => {
+  async (req, res, next) => {
     const errors = validationResult(req);
-    console.log(errors.array());
     if (!errors.isEmpty()) {
       return res
         .status(400)
         .render("signup", { errors: errors.array(), body: req.body });
     }
-    next();
-  },
-  async (req, res, next) => {
+
     const { username, password } = matchedData(req);
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
-      const newUser = await prisma.user.create({
+      await prisma.user.create({
         data: {
           username,
           password: hashedPassword,
@@ -86,9 +95,9 @@ module.exports.postSignup = [
           },
         },
       });
+      res.redirect("/login");
     } catch (err) {
-      return next(err);
+      next(err);
     }
-    res.redirect("/login");
   },
 ];

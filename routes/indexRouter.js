@@ -14,6 +14,7 @@ indexRouter.get("/root", getRoot);
 indexRouter.get("/folder/:id", getFolder);
 
 indexRouter.get("/folder/:parentId/new", (req, res) => {
+  if (!req.isAuthenticated()) return res.redirect("/login");
   const { parentId } = req.params;
   res.render("newFolder", { parentId });
 });

@@ -14,9 +14,14 @@
       <button type="submit">Login</button>
       <br />
       <br />
-      <%= errors.forEach(err => {
-       `<p>${err.msg}</p>`;
-      }) %>
+      <% if (locals.error) { %>
+        <p style="color: red;"><%= error %></p>
+      <% } %>
+      <% if (locals.errors && errors.length > 0) { %>
+        <% errors.forEach(err => { %>
+          <p style="color: red;"><%= err.msg %></p>
+        <% }) %>
+      <% } %>
     </form>
   </body>
 </html>

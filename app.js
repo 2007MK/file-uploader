@@ -36,17 +36,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use((req, res, next) => {
-  ((res.locals.errors = []),
-    (res.locals.body = []),
-    (res.locals.currentUser = req.user));
+  res.locals.errors = [];
+  res.locals.body = [];
+  res.locals.currentUser = req.user;
   next();
 });
 
 // Routes
 
 app.use((req, res, next) => {
-  console.log(req.session);
-  console.log(req.user);
   next();
 });
 
@@ -58,7 +56,8 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something went wrong");
 });
 
-app.listen(3000, (err) => {
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, (err) => {
   if (err) throw err;
-  console.log("Server started succesfully!");
+  console.log(`Server started successfully on port ${PORT}!`);
 });

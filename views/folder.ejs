@@ -6,6 +6,7 @@
   </head>
   <body>
     <a href="/folder/<%= folder.id %>/new"><button>New Folder</button></a>
+    <input type="file" name="file" id="file">
     <h1><%= folder.name %></h1>
     <ul>
         <% folder.children.forEach(item => { %>
