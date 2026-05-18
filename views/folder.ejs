@@ -16,7 +16,7 @@
         <% }) %>
         <% if(folder.files.length > 0) { %>
             <% folder.files.forEach(file => { %>
-                <li><%= file.name %></li>
+                <a href="/folder/<%= folder.id %>/<%= file.id %>"><li><%= file.name %></li></a>
             <%})%>
         <%}%>
 

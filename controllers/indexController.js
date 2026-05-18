@@ -22,6 +22,22 @@ const getRoot = async (req, res, next) => {
   }
 };
 
+const viewFile = async (req, res, next) => {
+  try {
+    if (!req.isAuthenticated) return res.redirect("/login");
+    const { parentId, fileId } = req.params;
+    const file = await prisma.file.findFirst({
+      where: {
+        id: fileId,
+        folderId: parentId,
+      },
+    });
+    res.render("file", { parentId, file });
+  } catch (err) {
+    throw err;
+  }
+};
+
 const getFolder = async (req, res, next) => {
   try {
     if (!req.isAuthenticated()) return res.redirect("/login");
@@ -117,4 +133,11 @@ const postNewFile = [
     res.redirect(`/folder/${parentId}`);
   },
 ];
-module.exports = { getRoot, getFolder, createFolder, getNewFile, postNewFile };
+module.exports = {
+  getRoot,
+  getFolder,
+  createFolder,
+  getNewFile,
+  postNewFile,
+  viewFile,
+};

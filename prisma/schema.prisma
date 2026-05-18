@@ -32,6 +32,7 @@ model File {
   path String
   folder Folder @relation(fields: [folderId], references: [id], onDelete: Cascade)
   folderId String
+  uploadedAt DateTime @default(now())
 }
 
 model Session {

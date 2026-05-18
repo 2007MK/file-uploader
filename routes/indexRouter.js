@@ -6,6 +6,7 @@ const {
   createFolder,
   getNewFile,
   postNewFile,
+  viewFile,
 } = require("../controllers/indexController");
 
 const indexRouter = Router();
@@ -25,5 +26,7 @@ indexRouter.post("/folder/:parentId/new", createFolder);
 
 indexRouter.get("/folder/:parentId/upload", getNewFile);
 indexRouter.post("/folder/:parentId/upload", postNewFile);
+
+indexRouter.get("/folder/:parentId/:fileId", viewFile);
 
 module.exports = indexRouter;
