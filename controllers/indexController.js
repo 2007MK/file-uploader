@@ -1,4 +1,6 @@
 const { prisma } = require("../lib/prisma");
+const multer = require("multer");
+const path = require("path");
 
 const getRoot = async (req, res, next) => {
   try {
@@ -60,7 +62,9 @@ const createFolder = async (req, res, next) => {
     });
 
     if (!parentFolder) {
-      return res.status(403).send("Forbidden: You do not own the parent folder");
+      return res
+        .status(403)
+        .send("Forbidden: You do not own the parent folder");
     }
 
     const newFolder = await prisma.folder.create({
@@ -75,4 +79,42 @@ const createFolder = async (req, res, next) => {
     next(err);
   }
 };
-module.exports = { getRoot, getFolder, createFolder };
+
+const getNewFile = (req, res) => {
+  const { parentId } = req.params;
+  res.render("newFile", { parentId });
+};
+
+const PATH = "uploads";
+
+// For giving proper filenames instead of random generated text without extensions
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, PATH);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname),
+    );
+  },
+});
+
+const upload = multer({ storage });
+
+const postNewFile = [
+  upload.single("uploaded_file"),
+  async (req, res) => {
+    const { parentId } = req.params;
+    await prisma.file.create({
+      data: {
+        name: req.file.originalname,
+        path: PATH,
+        folderId: parentId,
+      },
+    });
+    res.redirect(`/folder/${parentId}`);
+  },
+];
+module.exports = { getRoot, getFolder, createFolder, getNewFile, postNewFile };
